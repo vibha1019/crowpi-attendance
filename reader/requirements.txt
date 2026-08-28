@@ -4,4 +4,4 @@
 mfrc522
 spidev
 RPi.GPIO
-requests==2.32.3
+requests
