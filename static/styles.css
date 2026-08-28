@@ -1,0 +1,75 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  margin: 0;
+  padding: 2rem;
+  background: #111827;
+  color: #f9fafb;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1.5rem;
+}
+
+header h1 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+#period-timer {
+  font-variant-numeric: tabular-nums;
+  color: #9ca3af;
+}
+
+#roster {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.card {
+  padding: 1rem;
+  border-radius: 8px;
+  background: #1f2937;
+  border: 2px solid transparent;
+}
+
+.card .name {
+  font-weight: 600;
+}
+
+.card .state {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  margin-top: 0.25rem;
+}
+
+.state-PRESENT { border-color: #22c55e; }
+.state-TARDY { border-color: #eab308; }
+.state-TEMP_OUT { border-color: #9ca3af; }
+.state-LEFT_EARLY { border-color: #f97316; }
+.state-ABSENT { border-color: #ef4444; }
+.state-NOT_YET_ARRIVED { border-color: #374151; }
+
+.alert {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  padding: 1rem 1.5rem;
+  background: #ef4444;
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.3s;
+}
+
+.alert.hidden {
+  opacity: 0;
+  pointer-events: none;
+}

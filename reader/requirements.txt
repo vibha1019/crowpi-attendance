@@ -1,0 +1,7 @@
+# Only install these on the CrowPi itself - they require Raspberry Pi hardware
+# and won't install on a regular laptop. reader.py falls back to --simulate
+# mode automatically if these aren't present.
+mfrc522
+spidev
+RPi.GPIO
+requests==2.32.3
