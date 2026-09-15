@@ -45,8 +45,11 @@ def dashboard():
     return render_template("dashboard.html")
 
 
-@app.route("/api/events", methods=["POST"])
-def receive_event():
+@app.route("/api/scan", methods=["POST"])
+def scan():
+    """Single entry point for every tag scan from the reader. No CLI mode
+    flag needed: a brand new tag is parked as pending for an admin to name
+    in the web panel, a known tag just logs an attendance event."""
     data = request.get_json(force=True)
     tag_uid = str(data.get("tag_uid", "")).strip()
     if not tag_uid:
@@ -54,7 +57,12 @@ def receive_event():
 
     student = Student.query.filter_by(tag_uid=tag_uid).first()
     if not student:
-        return jsonify({"error": f"no student registered for tag {tag_uid}"}), 404
+        student = Student(tag_uid=tag_uid, name=f"Unnamed ({tag_uid})", pending=True)
+        db.session.add(student)
+        db.session.commit()
+
+    if student.pending:
+        return jsonify({"status": "pending", "tag_uid": tag_uid})
 
     period = get_active_period()
     if not period:
@@ -76,26 +84,53 @@ def receive_event():
     db.session.add(event)
     db.session.commit()
 
-    return jsonify({"student": student.name, "type": next_type})
+    return jsonify({"status": "logged", "student": student.name, "type": next_type})
 
 
-@app.route("/api/admin/register", methods=["POST"])
-def register_tag():
+@app.route("/api/admin/name_tag", methods=["POST"])
+def name_tag():
     data = request.get_json(force=True)
-    tag_uid = str(data.get("tag_uid", "")).strip()
+    student_id = data.get("id")
     name = str(data.get("name", "")).strip()
-    if not tag_uid or not name:
-        return jsonify({"error": "tag_uid and name required"}), 400
+    if not student_id or not name:
+        return jsonify({"error": "id and name required"}), 400
 
-    student = Student.query.filter_by(tag_uid=tag_uid).first()
-    if student:
-        student.name = name
-    else:
-        student = Student(tag_uid=tag_uid, name=name)
-        db.session.add(student)
+    student = Student.query.get(student_id)
+    if not student:
+        return jsonify({"error": "no student with that id"}), 404
+
+    student.name = name
+    student.pending = False
     db.session.commit()
 
     return jsonify({"id": student.id, "name": student.name, "tag_uid": student.tag_uid})
+
+
+@app.route("/admin")
+def admin():
+    return render_template("admin.html")
+
+
+@app.route("/api/admin/overview")
+def admin_overview():
+    period = get_active_period()
+    pending = Student.query.filter_by(pending=True).order_by(Student.id).all()
+    roster = Student.query.filter_by(pending=False).order_by(Student.name).all()
+    return jsonify(
+        {
+            "period": (
+                {
+                    "name": period.name,
+                    "start_time": period.start_time.isoformat(),
+                    "end_time": period.end_time.isoformat(),
+                }
+                if period
+                else None
+            ),
+            "pending": [{"id": s.id, "tag_uid": s.tag_uid} for s in pending],
+            "roster": [{"id": s.id, "name": s.name, "tag_uid": s.tag_uid} for s in roster],
+        }
+    )
 
 
 @app.route("/api/admin/period/start", methods=["POST"])
@@ -127,7 +162,7 @@ def status():
         return jsonify({"period": None, "students": []})
 
     now = utc_now()
-    students = Student.query.order_by(Student.name).all()
+    students = Student.query.filter_by(pending=False).order_by(Student.name).all()
     roster = [
         {"id": s.id, "name": s.name, "state": compute_state(s, period, now)}
         for s in students

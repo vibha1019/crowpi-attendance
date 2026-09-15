@@ -14,6 +14,7 @@ class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
     tag_uid = db.Column(db.String(64), unique=True, nullable=False)
+    pending = db.Column(db.Boolean, nullable=False, default=False)
 
 
 class Period(db.Model):

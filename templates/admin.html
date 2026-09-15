@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Attendance Admin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+<body>
+  <header>
+    <h1>Admin</h1>
+    <nav><a href="/">Dashboard</a></nav>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>New Tags Waiting to Be Named</h2>
+      <p class="hint">Tap an unregistered tag on the CrowPi and it shows up here automatically.</p>
+      <div id="pending-list" class="pending-list"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Class Period</h2>
+      <div id="period-status" class="hint"></div>
+      <form id="period-form">
+        <input type="text" id="period-name" placeholder="Period name" value="Period 3" required>
+        <input type="number" id="period-duration" placeholder="Duration (minutes)" value="45" min="1" required>
+        <input type="number" id="period-grace" placeholder="Grace (minutes)" value="5" min="0" required>
+        <button type="submit">Start Period</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Registered Students</h2>
+      <table id="roster-table">
+        <thead><tr><th>Name</th><th>Tag UID</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="{{ url_for('static', filename='admin.js') }}"></script>
+</body>
+</html>
