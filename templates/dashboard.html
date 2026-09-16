@@ -11,11 +11,28 @@
 </head>
 <body>
   <header>
-    <h1 id="period-name">Loading period...</h1>
-    <div id="period-timer"></div>
-    <nav><a href="/admin">Admin</a></nav>
+    <div class="header-left">
+      <div class="eyebrow">Del Norte High School</div>
+      <h1 id="period-name">Loading period...</h1>
+      <div id="period-meta" class="period-meta"></div>
+    </div>
+    <div class="header-right">
+      <div id="period-timer" class="timer"></div>
+      <nav><a href="/admin">Admin</a></nav>
+    </div>
   </header>
-  <main id="roster"></main>
+
+  <section id="summary" class="summary"></section>
+
+  <main>
+    <table id="roster-table">
+      <thead>
+        <tr><th>Student</th><th>Status</th><th>Since</th></tr>
+      </thead>
+      <tbody id="roster"></tbody>
+    </table>
+  </main>
+
   <div id="alert" class="alert hidden"></div>
   <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
 </body>

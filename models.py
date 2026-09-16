@@ -24,6 +24,9 @@ class Period(db.Model):
     duration_seconds = db.Column(db.Integer, nullable=False)
     grace_seconds = db.Column(db.Integer, nullable=False, default=15)
     active = db.Column(db.Boolean, default=False)
+    # "bell" = auto-derived from the real school bell schedule, "manual" = an
+    # admin started it by hand (used as a fallback outside school hours).
+    source = db.Column(db.String(10), nullable=False, default="manual")
 
     @property
     def end_time(self):

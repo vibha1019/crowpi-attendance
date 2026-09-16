@@ -1,8 +1,9 @@
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from flask import Flask, jsonify, render_template, request
 
+import bell_schedule
 from models import Event, Period, Student, db, utc_now
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -14,7 +15,38 @@ db.init_app(app)
 
 
 def get_active_period():
-    return Period.query.filter_by(active=True).order_by(Period.id.desc()).first()
+    """The real bell schedule drives attendance whenever school is actually
+    in session. Outside a bell period (weekends, evenings, break/lunch, or a
+    special-day schedule this doesn't model) fall back to whatever period an
+    admin started manually, which is how demos/testing outside class hours
+    still work."""
+    bell = bell_schedule.get_bell_period()
+    if bell:
+        name, start_utc, end_utc = bell
+        period = Period.query.filter_by(name=name, start_time=start_utc).first()
+        if not period:
+            Period.query.filter_by(active=True).update({"active": False})
+            period = Period(
+                name=name,
+                start_time=start_utc,
+                duration_seconds=int((end_utc - start_utc).total_seconds()),
+                grace_seconds=bell_schedule.DEFAULT_GRACE_SECONDS,
+                active=True,
+                source="bell",
+            )
+            db.session.add(period)
+            db.session.commit()
+        elif not period.active:
+            Period.query.filter_by(active=True).update({"active": False})
+            period.active = True
+            db.session.commit()
+        return period
+
+    return (
+        Period.query.filter_by(active=True, source="manual")
+        .order_by(Period.id.desc())
+        .first()
+    )
 
 
 def compute_state(student, period, now):
@@ -148,11 +180,28 @@ def start_period():
         duration_seconds=duration_seconds,
         grace_seconds=grace_seconds,
         active=True,
+        source="manual",
     )
     db.session.add(period)
     db.session.commit()
 
     return jsonify({"id": period.id, "name": period.name})
+
+
+@app.route("/api/bell_schedule/today")
+def bell_schedule_today():
+    schedule = bell_schedule.todays_schedule()
+    if not schedule:
+        return jsonify({"weekday": "weekend", "periods": []})
+    return jsonify(
+        {
+            "weekday": "wednesday" if datetime.now().weekday() == 2 else "regular",
+            "periods": [
+                {"name": name, "start": start.strftime("%I:%M %p"), "end": end.strftime("%I:%M %p")}
+                for name, start, end in schedule
+            ],
+        }
+    )
 
 
 @app.route("/api/status")
@@ -163,10 +212,21 @@ def status():
 
     now = utc_now()
     students = Student.query.filter_by(pending=False).order_by(Student.name).all()
-    roster = [
-        {"id": s.id, "name": s.name, "state": compute_state(s, period, now)}
-        for s in students
-    ]
+    roster = []
+    for s in students:
+        last_event = (
+            Event.query.filter_by(student_id=s.id, period_id=period.id)
+            .order_by(Event.timestamp.desc())
+            .first()
+        )
+        roster.append(
+            {
+                "id": s.id,
+                "name": s.name,
+                "state": compute_state(s, period, now),
+                "since": last_event.timestamp.isoformat() if last_event else None,
+            }
+        )
     return jsonify(
         {
             "period": {
@@ -174,6 +234,7 @@ def status():
                 "start_time": period.start_time.isoformat(),
                 "end_time": period.end_time.isoformat(),
                 "seconds_remaining": max(0, int((period.end_time - now).total_seconds())),
+                "source": period.source,
             },
             "students": roster,
         }
