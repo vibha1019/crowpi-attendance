@@ -8,7 +8,7 @@ Wants=network-online.target
 # repo's location on disk differs from these defaults.
 User=pi
 WorkingDirectory=/home/pi/crowpi-attendance/reader
-ExecStart=/usr/bin/python3 /home/pi/crowpi-attendance/reader/reader.py --backend http://192.168.1.242:5050
+ExecStart=/usr/bin/python3 /home/pi/crowpi-attendance/reader/reader.py --backend http://192.168.1.242:8587 --api-key local-dev-rfid-key-testing --classroom-id 1
 Restart=on-failure
 RestartSec=5
 
