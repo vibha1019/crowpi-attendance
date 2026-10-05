@@ -1,69 +1,64 @@
-# CrowPi Attendance Prototype
+# CrowPi Attendance Reader
 
-A working prototype: a CrowPi at the classroom door with an RFID scan pad,
-~20 tags, a Flask + SQLite backend, and a live dashboard. One tap toggles a
-student between entered/exited; presence state (present/tardy/stepped
-out/left early/absent) is computed against the active class period.
+The RFID reading point for the Classroom Presence System. A CrowPi at the
+classroom door reads tag taps and posts each one to OCS (`flask_csh`), which
+resolves the tag to a student, applies the bell schedule, and records the
+attendance event. Live attendance is shown on the Presence dashboard in
+`pages_csh` (`/capstone/presence-system/dashboard/`).
 
-## 1. Run the backend
+This repo only contains the reader (`reader/`). The backend lives in
+`flask_csh` (`api/presence_api.py`, `api/rfid_api.py`).
+
+## 1. Configure
 
 ```bash
-cd crowpi-attendance
-python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-python app.py
+cd reader
+cp reader.env.example reader.env   # untracked, never commit it
 ```
 
-Dashboard: http://localhost:5050
+Fill in `reader.env`:
 
-## 2. Quick test with no hardware at all
+| Variable       | Meaning                                                       |
+|----------------|---------------------------------------------------------------|
+| `BACKEND_URL`  | OCS base URL, e.g. `http://192.168.1.242:8587`                |
+| `RFID_API_KEY` | Must match `RFID_API_KEY` in `flask_csh/.env`                 |
+| `CLASSROOM_ID` | OCS classroom id to log attendance against                    |
+| `DEVICE_ID`    | Optional label for this reader, e.g. `crowpi-room1`           |
+
+The CrowPi's clock must be NTP-synced: each tap is stamped with the time it
+happened on the device.
+
+## 2. Test from a laptop (no hardware)
 
 ```bash
-python seed.py                        # 4 demo students + a 2-minute demo period
-cd reader
+pip install requests
+set -a; source reader.env; set +a
 python reader.py --simulate
 ```
 
-Type a fake UID and press enter to simulate a tap, e.g. `demo-001` to mark
-Alice present, then `demo-001` again to toggle her to exit. Watch the
-dashboard update live.
+Type a registered tag UID and press enter to simulate a tap.
 
-## 3. Register the real tags
-
-Once the CrowPi and tags are in hand, run on the CrowPi itself (registration
-mode prompts for a name on every scan instead of logging attendance):
+## 3. Run on the CrowPi
 
 ```bash
 cd reader
 pip install -r requirements.txt       # Pi-only deps (mfrc522, spidev, RPi.GPIO)
-python reader.py --register --backend http://<backend-host>:5050
+sudo cp crowpi-reader.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now crowpi-reader
+journalctl -u crowpi-reader -f        # watch taps
 ```
 
-Scan each of the ~20 tags once and type the student's name when prompted.
+The unit loads `reader/reader.env` via `EnvironmentFile`.
 
-## 4. Start a real class period
+## Registering tags
 
-```bash
-curl -X POST http://localhost:5050/api/admin/period/start \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Period 3", "duration_seconds": 2700, "grace_seconds": 300}'
-```
-
-(`duration_seconds`/`grace_seconds` can be set short for a live demo, e.g.
-120s/15s, so the tardy/absent/left-early states can actually be shown off
-without waiting through a real class period.)
-
-## 5. Run attendance for real
-
-```bash
-cd reader
-python reader.py --backend http://<backend-host>:5050
-```
+Tags are bound to OCS users through OCS's admin-authenticated
+`POST /api/rfid/register` (`{"tag_uid": "...", "user_id": ...}`). A tap from
+an unregistered tag is reported as `unregistered` and not logged.
 
 ## Known limitation
 
-This is a single checkpoint (one CrowPi, one scan pad) — it can tell you a
-tag was scanned, not which direction someone was walking, so enter/exit is
-inferred by toggling. Good enough for a working demo; a two-reader (front
-door/back door) setup would remove the ambiguity if that becomes necessary
-later.
+This is a single checkpoint (one CrowPi, one scan pad): it can tell a tag
+was scanned, not which direction someone was walking, so enter/exit is
+inferred by toggling within each class period.
