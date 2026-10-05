@@ -8,7 +8,10 @@ Wants=network-online.target
 # repo's location on disk differs from these defaults.
 User=pi
 WorkingDirectory=/home/pi/crowpi-attendance/reader
-ExecStart=/usr/bin/python3 /home/pi/crowpi-attendance/reader/reader.py --backend http://192.168.1.242:8587 --api-key local-dev-rfid-key-testing --classroom-id 1
+# Backend URL, API key, and classroom id live in reader.env (untracked).
+# Copy reader.env.example to reader.env and fill it in.
+EnvironmentFile=/home/pi/crowpi-attendance/reader/reader.env
+ExecStart=/usr/bin/python3 /home/pi/crowpi-attendance/reader/reader.py
 Restart=on-failure
 RestartSec=5
 
