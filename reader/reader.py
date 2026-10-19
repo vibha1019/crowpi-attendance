@@ -12,6 +12,12 @@ systemd unit loads reader.env via EnvironmentFile):
   RFID_API_KEY   shared device key, must match flask_csh's RFID_API_KEY
   CLASSROOM_ID   OCS classroom id to log attendance against
   DEVICE_ID      optional label for this reader, e.g. crowpi-room1
+  READER         optional: rc522 (default; the CrowPi's reader or an RC522
+                 board on SPI) or pn532 (Waveshare PN532 NFC HAT in UART mode)
+  PN532_PORT     optional, pn532 only: serial port, default /dev/serial0
+
+Both readers report a card as the same number, so tags registered from the
+CrowPi keep working on a PN532.
 
 Every scan is stamped with the time it was tapped (occurred_at, UTC) and a
 unique event_id on the CrowPi itself, so a scan that only reaches the
@@ -156,6 +162,14 @@ def handle_scan(config, tag_uid, retry_queue):
     print(describe(result))
 
 
+def handle_if_new(config, uid, retry_queue, last_seen):
+    """Ignore the same card again within DEBOUNCE_SECONDS (one tap is read many times)."""
+    now = time.time()
+    if now - last_seen.get(uid, 0) > DEBOUNCE_SECONDS:
+        handle_scan(config, uid, retry_queue)
+        last_seen[uid] = now
+
+
 def run_hardware(config, retry_queue):
     from mfrc522 import SimpleMFRC522
 
@@ -165,11 +179,42 @@ def run_hardware(config, retry_queue):
     try:
         while True:
             uid, _ = reader.read()
-            uid = str(uid)
-            now = time.time()
-            if now - last_seen.get(uid, 0) > DEBOUNCE_SECONDS:
-                handle_scan(config, uid, retry_queue)
-                last_seen[uid] = now
+            handle_if_new(config, str(uid), retry_queue, last_seen)
+    except KeyboardInterrupt:
+        print("\nStopped.")
+
+
+def pn532_uid_to_number(uid):
+    """The number SimpleMFRC522 reports for the same card, so tags registered
+    on the CrowPi still match: SimpleMFRC522 reads a 4-byte UID plus its BCC
+    check byte (XOR of the four) as one big-endian integer. The PN532 returns
+    only the UID, so the BCC is added back. Longer UIDs are used as-is."""
+    data = bytes(uid)
+    if len(data) == 4:
+        data += bytes([data[0] ^ data[1] ^ data[2] ^ data[3]])
+    return str(int.from_bytes(data, "big"))
+
+
+def run_pn532(config, retry_queue):
+    import serial
+    from adafruit_pn532.uart import PN532_UART
+
+    port = config["pn532_port"]
+    uart = serial.Serial(port, baudrate=115200, timeout=0.1)
+    try:
+        pn532 = PN532_UART(uart, debug=False)  # raises if nothing answers on the port
+        _, version, revision, _ = pn532.firmware_version
+    except RuntimeError:
+        sys.exit(f"No PN532 answered on {port}. Check the HAT is in UART mode (I0=L, I1=L), "
+                 "its RX/TX DIP switches are on, and the serial port is enabled in raspi-config.")
+    pn532.SAM_configuration()
+    last_seen = {}
+    print(f"PN532 reader running (firmware {version}.{revision} on {port}). Tap a card. Ctrl+C to quit.")
+    try:
+        while True:
+            uid = pn532.read_passive_target(timeout=0.5)
+            if uid is not None:
+                handle_if_new(config, pn532_uid_to_number(uid), retry_queue, last_seen)
     except KeyboardInterrupt:
         print("\nStopped.")
 
@@ -186,15 +231,23 @@ def run_simulate(config, retry_queue):
         print("\nStopped.")
 
 
+READERS = {"rc522": run_hardware, "pn532": run_pn532}
+
+
 def load_config():
     missing = [name for name in ("BACKEND_URL", "RFID_API_KEY", "CLASSROOM_ID") if not os.environ.get(name)]
     if missing:
         sys.exit(f"Missing required environment variables: {', '.join(missing)} (see reader.env.example)")
+    reader = (os.environ.get("READER") or "rc522").strip().lower()
+    if reader not in READERS:
+        sys.exit(f"READER must be one of {', '.join(READERS)}, got {reader!r}")
     return {
         "base_url": os.environ["BACKEND_URL"].rstrip("/"),
         "api_key": os.environ["RFID_API_KEY"],
         "classroom_id": int(os.environ["CLASSROOM_ID"]),
         "device_id": os.environ.get("DEVICE_ID") or None,
+        "reader": reader,
+        "pn532_port": os.environ.get("PN532_PORT") or "/dev/serial0",
     }
 
 
@@ -211,7 +264,7 @@ if __name__ == "__main__":
         run_simulate(config, retry_queue)
     else:
         try:
-            run_hardware(config, retry_queue)
-        except ImportError:
-            print("mfrc522 library not available - falling back to simulate mode.")
+            READERS[config["reader"]](config, retry_queue)
+        except ImportError as missing_library:
+            print(f"{config['reader']} reader library not available ({missing_library}) - falling back to simulate mode.")
             run_simulate(config, retry_queue)

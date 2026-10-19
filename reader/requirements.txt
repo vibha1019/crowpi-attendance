@@ -5,3 +5,4 @@ mfrc522
 spidev
 RPi.GPIO
 requests
+pyserial  # READER=pn532 only (Waveshare PN532 NFC HAT over UART)
