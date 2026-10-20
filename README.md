@@ -22,7 +22,7 @@ Fill in `reader.env`:
 |----------------|---------------------------------------------------------------|
 | `BACKEND_URL`  | OCS base URL, e.g. `http://192.168.1.242:8587`                |
 | `RFID_API_KEY` | Must match `RFID_API_KEY` in `flask_csh/.env`                 |
-| `CLASSROOM_ID` | OCS classroom id to log attendance against                    |
+| `ROOM_ID`      | OCS presence room id the taps belong to (`/api/presence/rooms`) |
 | `DEVICE_ID`    | Optional label for this reader, e.g. `crowpi-room1`           |
 
 The CrowPi's clock must be NTP-synced: each tap is stamped with the time it

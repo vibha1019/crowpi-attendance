@@ -10,7 +10,8 @@ systemd unit loads reader.env via EnvironmentFile):
 
   BACKEND_URL    OCS base URL, e.g. http://192.168.1.242:8587
   RFID_API_KEY   shared device key, must match flask_csh's RFID_API_KEY
-  CLASSROOM_ID   OCS classroom id to log attendance against
+  ROOM_ID        OCS presence room id the taps belong to (CLASSROOM_ID is
+                 still read as a fallback for older reader.env files)
   DEVICE_ID      optional label for this reader, e.g. crowpi-room1
   READER         optional: rc522 (default; the CrowPi's reader or an RC522
                  board on SPI) or pn532 (Waveshare PN532 NFC HAT in UART mode)
@@ -70,7 +71,7 @@ def try_post(config, scan):
             f"{config['base_url']}/api/rfid/scan",
             json={
                 **scan,
-                "classroom_id": config["classroom_id"],
+                "room_id": config["room_id"],
                 "device_id": config["device_id"],
             },
             headers={"X-API-Key": config["api_key"]},
@@ -235,7 +236,10 @@ READERS = {"rc522": run_hardware, "pn532": run_pn532}
 
 
 def load_config():
-    missing = [name for name in ("BACKEND_URL", "RFID_API_KEY", "CLASSROOM_ID") if not os.environ.get(name)]
+    room_id = os.environ.get("ROOM_ID") or os.environ.get("CLASSROOM_ID")
+    missing = [name for name in ("BACKEND_URL", "RFID_API_KEY") if not os.environ.get(name)]
+    if not room_id:
+        missing.append("ROOM_ID")
     if missing:
         sys.exit(f"Missing required environment variables: {', '.join(missing)} (see reader.env.example)")
     reader = (os.environ.get("READER") or "rc522").strip().lower()
@@ -244,7 +248,7 @@ def load_config():
     return {
         "base_url": os.environ["BACKEND_URL"].rstrip("/"),
         "api_key": os.environ["RFID_API_KEY"],
-        "classroom_id": int(os.environ["CLASSROOM_ID"]),
+        "room_id": int(room_id),
         "device_id": os.environ.get("DEVICE_ID") or None,
         "reader": reader,
         "pn532_port": os.environ.get("PN532_PORT") or "/dev/serial0",
