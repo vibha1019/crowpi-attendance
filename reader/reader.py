@@ -1,6 +1,6 @@
-"""CrowPi RFID reader service.
+"""Presence System RFID reader service.
 
-Runs on the CrowPi and posts every tag scan to OCS (flask_csh), which
+Runs on a Raspberry Pi and posts every tag scan to OCS (flask_csh), which
 resolves the tag to a student and records the attendance event itself.
 This script is just the reading point. Tag registration happens
 separately, through OCS's admin-authenticated /api/rfid/register endpoint.
@@ -12,18 +12,18 @@ systemd unit loads reader.env via EnvironmentFile):
   RFID_API_KEY   shared device key, must match flask_csh's RFID_API_KEY
   ROOM_ID        OCS presence room id the taps belong to (CLASSROOM_ID is
                  still read as a fallback for older reader.env files)
-  DEVICE_ID      optional label for this reader, e.g. crowpi-room1
-  READER         optional: rc522 (default; the CrowPi's reader or an RC522
-                 board on SPI) or pn532 (Waveshare PN532 NFC HAT in UART mode)
+  DEVICE_ID      optional label for this reader, e.g. pi-room1
+  READER         optional: rc522 (default; an RC522 board on SPI)
+                 or pn532 (Waveshare PN532 NFC HAT in UART mode)
   PN532_PORT     optional, pn532 only: serial port, default /dev/serial0
 
-Both readers report a card as the same number, so tags registered from the
-CrowPi keep working on a PN532.
+Both readers report a card as the same number, so tags registered on an
+RC522 keep working on a PN532.
 
 Every scan is stamped with the time it was tapped (occurred_at, UTC) and a
-unique event_id on the CrowPi itself, so a scan that only reaches the
+unique event_id on the Pi itself, so a scan that only reaches the
 server later is still recorded at the right time, and a retry of a scan
-the server already saw is not logged twice. The CrowPi's clock must be
+the server already saw is not logged twice. The Pi's clock must be
 NTP-synced for occurred_at to be trustworthy.
 
 A scan that fails to reach the backend (wifi blip, backend restarting) is
@@ -32,9 +32,9 @@ background thread retries the queue every few seconds, independent of new
 taps. While anything is queued, new taps join the back of the queue so
 scans always reach the server in the order they happened.
 
-Pass --simulate to run without the CrowPi's RFID hardware attached (types a
+Pass --simulate to run without the RFID hardware attached (types a
 fake tag UID instead of tapping a real card) so the pipeline can be tested
-from a laptop before the CrowPi is set up.
+from a laptop before the Pi is set up.
 """
 
 import argparse
@@ -176,7 +176,7 @@ def run_hardware(config, retry_queue):
 
     reader = SimpleMFRC522()
     last_seen = {}
-    print("CrowPi reader running. Tap a tag on the scan pad. Ctrl+C to quit.")
+    print("Presence reader running. Tap a tag on the scan pad. Ctrl+C to quit.")
     try:
         while True:
             uid, _ = reader.read()
@@ -187,7 +187,7 @@ def run_hardware(config, retry_queue):
 
 def pn532_uid_to_number(uid):
     """The number SimpleMFRC522 reports for the same card, so tags registered
-    on the CrowPi still match: SimpleMFRC522 reads a 4-byte UID plus its BCC
+    on an RC522 still match: SimpleMFRC522 reads a 4-byte UID plus its BCC
     check byte (XOR of the four) as one big-endian integer. The PN532 returns
     only the UID, so the BCC is added back. Longer UIDs are used as-is."""
     data = bytes(uid)
@@ -221,7 +221,7 @@ def run_pn532(config, retry_queue):
 
 
 def run_simulate(config, retry_queue):
-    print("Simulate mode - no CrowPi hardware needed.")
+    print("Simulate mode - no reader hardware needed.")
     print("Type a fake tag UID and press enter to fake a scan (Ctrl+C to quit).")
     try:
         while True:
@@ -256,8 +256,8 @@ def load_config():
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="CrowPi RFID reader service")
-    parser.add_argument("--simulate", action="store_true", help="Run without CrowPi hardware")
+    parser = argparse.ArgumentParser(description="Presence System RFID reader service")
+    parser.add_argument("--simulate", action="store_true", help="Run without reader hardware")
     args = parser.parse_args()
 
     config = load_config()

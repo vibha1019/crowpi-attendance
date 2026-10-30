@@ -1,10 +1,10 @@
 [Unit]
-Description=CrowPi RFID attendance reader
+Description=Classroom Presence RFID reader
 After=network-online.target
 Wants=network-online.target
 
 [Service]
-# Adjust User/WorkingDirectory/ExecStart if your CrowPi username or the
+# Adjust User/WorkingDirectory/ExecStart if your Pi username or the
 # repo's location on disk differs from these defaults.
 User=pi
 WorkingDirectory=/home/pi/crowpi-attendance/reader

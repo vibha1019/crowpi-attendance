@@ -1,6 +1,6 @@
-# CrowPi Attendance Reader
+# Presence Reader
 
-The RFID reading point for the Classroom Presence System. A CrowPi at the
+The RFID reading point for the Classroom Presence System. A Raspberry Pi at the
 classroom door reads tag taps and posts each one to OCS (`flask_csh`), which
 resolves the tag to a student, applies the bell schedule, and records the
 attendance event. Live attendance is shown on the Presence dashboard in
@@ -23,9 +23,9 @@ Fill in `reader.env`:
 | `BACKEND_URL`  | OCS base URL, e.g. `http://192.168.1.242:8587`                |
 | `RFID_API_KEY` | Must match `RFID_API_KEY` in `flask_csh/.env`                 |
 | `ROOM_ID`      | OCS presence room id the taps belong to (`/api/presence/rooms`) |
-| `DEVICE_ID`    | Optional label for this reader, e.g. `crowpi-room1`           |
+| `DEVICE_ID`    | Optional label for this reader, e.g. `pi-room1`               |
 
-The CrowPi's clock must be NTP-synced: each tap is stamped with the time it
+The Pi's clock must be NTP-synced: each tap is stamped with the time it
 happened on the device.
 
 ## 2. Test from a laptop (no hardware)
@@ -38,15 +38,15 @@ python reader.py --simulate
 
 Type a registered tag UID and press enter to simulate a tap.
 
-## 3. Run on the CrowPi
+## 3. Run on the Raspberry Pi
 
 ```bash
 cd reader
 pip install -r requirements.txt       # Pi-only deps (mfrc522, spidev, RPi.GPIO)
-sudo cp crowpi-reader.service /etc/systemd/system/
+sudo cp presence-reader.service /etc/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl enable --now crowpi-reader
-journalctl -u crowpi-reader -f        # watch taps
+sudo systemctl enable --now presence-reader
+journalctl -u presence-reader -f      # watch taps
 ```
 
 The unit loads `reader/reader.env` via `EnvironmentFile`.
@@ -59,6 +59,6 @@ an unregistered tag is reported as `unregistered` and not logged.
 
 ## Known limitation
 
-This is a single checkpoint (one CrowPi, one scan pad): it can tell a tag
+This is a single checkpoint (one Pi, one scan pad): it can tell a tag
 was scanned, not which direction someone was walking, so enter/exit is
 inferred by toggling within each class period.
