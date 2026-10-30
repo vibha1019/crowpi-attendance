@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Presence Camera Demo</title>
+<style>
+  :root {
+    --bg: #f5f6f8; --card: #ffffff; --text: #1b1f24; --muted: #5f6b7a; --line: #e2e6eb;
+    --accent: #2457d6; --accent-text: #ffffff;
+    --good-bg: #e3f5e8; --good: #17663a; --bad-bg: #fde5e5; --bad: #a3221c;
+    --warn-bg: #fff2d9; --warn: #8a5a00; --info-bg: #e5edff; --info: #2547a8;
+    --neutral-bg: #eceef1; --neutral: #4a5361; --code-bg: #12161c; --code: #d6dde6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101317; --card: #181c22; --text: #e8ecf1; --muted: #9aa5b3; --line: #2a3039;
+      --accent: #5b8cff; --accent-text: #0b1020;
+      --good-bg: #133222; --good: #7fdc9f; --bad-bg: #3a1716; --bad: #ff9c94;
+      --warn-bg: #3a2c10; --warn: #ffcf73; --info-bg: #19254a; --info: #a9c0ff;
+      --neutral-bg: #252a32; --neutral: #b7c0cc; --code-bg: #0b0e12; --code: #c9d3de;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1180px; margin: 0 auto; padding: 24px 16px 40px; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px;
+           margin-bottom: 20px; }
+  h1 { font-size: 26px; margin: 0; }
+  h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 12px; }
+  .meta { color: var(--muted); }
+  .grid { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 16px; }
+  @media (max-width: 820px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px; min-width: 0; }
+  .stack { display: grid; gap: 16px; align-content: start; }
+  .tap { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer;
+         background: var(--card); color: var(--text); border: 1px solid var(--line); border-radius: 10px;
+         padding: 12px 14px; margin-bottom: 10px; font: inherit; }
+  .tap:hover { border-color: var(--accent); }
+  .tap:active { transform: translateY(1px); }
+  .tap .key { flex: none; width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center;
+              background: var(--accent); color: var(--accent-text); font-weight: 700; }
+  .tap .who { flex: 1; min-width: 0; }
+  .tap .name { font-weight: 600; display: block; }
+  .tap .sub { color: var(--muted); font-size: 13px; }
+  .note { color: var(--muted); font-size: 14px; margin: 4px 0 0; }
+  .toast { min-height: 22px; font-size: 14px; margin-top: 6px; color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 12px 8px; border-bottom: 1px solid var(--line); }
+  th { font-size: 13px; color: var(--muted); font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+  tr.changed td { animation: flash 1.4s ease-out; }
+  @keyframes flash { from { background: var(--info-bg); } to { background: transparent; } }
+  .table-wrap { overflow-x: auto; }
+  .pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 14px; font-weight: 600;
+          white-space: nowrap; }
+  .good { background: var(--good-bg); color: var(--good); }
+  .bad { background: var(--bad-bg); color: var(--bad); }
+  .warn { background: var(--warn-bg); color: var(--warn); }
+  .info { background: var(--info-bg); color: var(--info); }
+  .neutral { background: var(--neutral-bg); color: var(--neutral); }
+  .legend { display: grid; grid-template-columns: max-content 1fr; gap: 8px 12px; align-items: center;
+            font-size: 14px; }
+  .legend span:nth-child(even) { color: var(--muted); }
+  ol { margin: 0; padding-left: 20px; }
+  ol li { margin-bottom: 6px; }
+  .camera-head { display: flex; justify-content: space-between; align-items: center; gap: 12px;
+                 margin-bottom: 10px; }
+  .camera-head h2 { margin: 0; }
+  pre { margin: 0; background: var(--code-bg); color: var(--code); border-radius: 8px; padding: 12px;
+        height: 220px; overflow: auto; font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+        white-space: pre-wrap; word-break: break-word; }
+  .secondary { background: none; border: 1px solid var(--line); color: var(--text); border-radius: 8px;
+               padding: 8px 12px; font: inherit; font-size: 14px; cursor: pointer; }
+  .secondary:hover { border-color: var(--accent); }
+  .error { color: var(--bad); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Classroom Presence: camera check</h1>
+      <div class="meta" id="period">Connecting to the demo backend...</div>
+    </div>
+    <button class="secondary" id="new-period" type="button">Start a new demo period</button>
+  </header>
+
+  <div class="grid">
+    <div class="stack">
+      <section class="card">
+        <h2>Tap a card</h2>
+        <div id="taps"></div>
+        <p class="note">These buttons stand in for the Pi's RFID reader. Tapping the same card again is a tap out.</p>
+        <div class="toast" id="toast"></div>
+      </section>
+      <section class="card">
+        <h2>Try these</h2>
+        <ol id="scenarios"></ol>
+      </section>
+    </div>
+
+    <div class="stack">
+      <section class="card">
+        <h2>Live roster</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Student</th><th>Status</th><th>Since</th><th>Camera check</th></tr></thead>
+            <tbody id="roster"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="card">
+        <div class="camera-head">
+          <h2>Camera client (on this laptop)</h2>
+          <span class="pill neutral" id="camera-state">starting</span>
+        </div>
+        <pre id="camera-log"></pre>
+      </section>
+      <section class="card">
+        <h2>What the camera check means</h2>
+        <div class="legend" id="legend"></div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script>
+  // Same words as Vibha's dashboard, so the demo reads like the real thing.
+  const STATES = {
+    PRESENT: ["Present", "good"], TARDY: ["Tardy", "warn"], TEMP_OUT: ["Stepped out", "neutral"],
+    LEFT_EARLY: ["Left early", "warn"], ABSENT: ["Absent", "bad"], NOT_YET_ARRIVED: ["Not yet arrived", "neutral"],
+  };
+  const CHECKS = {
+    VERIFIED: ["Verified", "good", "The face at the station is the card's owner."],
+    MISMATCH: ["Mismatch", "bad", "Someone else's face, or a face that matches no one."],
+    NO_FACE: ["No face", "warn", "Nobody was in view of the camera."],
+    TAP_ONLY: ["Tap only", "neutral", "No reference photo for this person, so no face check."],
+    PENDING: ["Checking...", "info", "The camera is looking (a few seconds)."],
+    UNVERIFIED: ["Unverified", "warn", "The camera did not answer within 15 seconds."],
+    RFID_ONLY: ["RFID only", "neutral", "The camera is turned off on the server."],
+  };
+  const POLL_MS = 1000;
+  const lastSeen = {};  // uid -> "state|check|since", to flash rows that change
+  let people = [];
+
+  const el = (id) => document.getElementById(id);
+
+  function pill(text, tone) {
+    const span = document.createElement("span");
+    span.className = `pill ${tone}`;
+    span.textContent = text;
+    return span;
+  }
+
+  function time(iso) {
+    return iso ? new Date(iso).toLocaleTimeString([], { hour: "numeric", minute: "2-digit", second: "2-digit" }) : "-";
+  }
+
+  function firstName(person) {
+    return person.name.split(" ")[0];
+  }
+
+  function showToast(text, isError) {
+    const toast = el("toast");
+    toast.textContent = text;
+    toast.className = isError ? "toast error" : "toast";
+  }
+
+  async function postJson(path, body) {
+    const res = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify(body || {}) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    return data;
+  }
+
+  async function tap(person) {
+    try {
+      const event = await postJson("/api/tap", { uid: person.uid });
+      const kind = { enter: "tap in", exit: "tap out", ignored: "ignored: no period running" }[event.type] || event.type;
+      showToast(`${time(event.occurred_at)}  ${firstName(person)}'s card (${kind})`);
+    } catch (error) {
+      showToast(`Tap failed: ${error.message}`, true);
+    }
+  }
+
+  function renderTapButtons() {
+    const box = el("taps");
+    box.replaceChildren();
+    people.forEach((person, index) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "tap";
+      button.innerHTML = `<span class="key"></span><span class="who"><span class="name"></span><span class="sub"></span></span>`;
+      button.querySelector(".key").textContent = index + 1;
+      button.querySelector(".name").textContent = `Tap ${firstName(person)}'s card`;
+      button.querySelector(".sub").textContent =
+        `${person.tag} · ${person.face_on_file ? "photo on file" : "no photo on file"}`;
+      button.addEventListener("click", () => tap(person));
+      box.append(button);
+    });
+  }
+
+  function renderScenarios() {
+    const withPhoto = people.filter((p) => p.face_on_file);
+    const withoutPhoto = people.filter((p) => !p.face_on_file);
+    const items = [];
+    if (withPhoto[0]) {
+      const a = firstName(withPhoto[0]);
+      items.push(`Tap ${a}'s card with ${a} facing the camera: <b>Verified</b>.`);
+      items.push(`Tap ${a}'s card again with nobody in view: <b>No face</b> (a tap out).`);
+      if (withPhoto[1]) {
+        items.push(`Tap ${firstName(withPhoto[1])}'s card with ${a} facing the camera: <b>Mismatch</b> (a proxy tap).`);
+      } else {
+        items.push(`For a <b>Mismatch</b>, take a second person's photo first (--enroll ${withoutPhoto[0]?.uid || "uid"}).`);
+      }
+    }
+    if (withoutPhoto[0]) {
+      items.push(`Tap ${firstName(withoutPhoto[0])}'s card: <b>Tap only</b> (no photo on file).`);
+    }
+    el("scenarios").innerHTML = items.map((item) => `<li>${item}</li>`).join("");
+  }
+
+  function renderLegend() {
+    const box = el("legend");
+    for (const key of ["VERIFIED", "MISMATCH", "NO_FACE", "TAP_ONLY", "PENDING", "UNVERIFIED"]) {
+      const [label, tone, meaning] = CHECKS[key];
+      const cell = document.createElement("span");
+      cell.append(pill(label, tone));
+      const text = document.createElement("span");
+      text.textContent = meaning;
+      box.append(cell, text);
+    }
+  }
+
+  function renderPeriod(status) {
+    const period = status.period;
+    if (!period) {
+      el("period").textContent = `${status.room.name} · no period running: start a new demo period.`;
+      return;
+    }
+    el("period").textContent = `${status.room.name} · ${period.name} · ${time(period.start_time)} to ${time(period.end_time)}`;
+  }
+
+  function renderRoster(students) {
+    const body = el("roster");
+    body.replaceChildren();
+    for (const student of students) {
+      const tr = document.createElement("tr");
+      const [stateLabel, stateTone] = STATES[student.state] || [student.state, "neutral"];
+      const check = student.verification ? (CHECKS[student.verification] || [student.verification, "neutral"]) : null;
+      const key = `${student.state}|${student.verification}|${student.since}`;
+      if (lastSeen[student.uid] !== undefined && lastSeen[student.uid] !== key) tr.className = "changed";
+      lastSeen[student.uid] = key;
+
+      const name = document.createElement("td");
+      name.textContent = student.name;
+      const state = document.createElement("td");
+      state.append(pill(stateLabel, stateTone));
+      const since = document.createElement("td");
+      since.textContent = time(student.since);
+      const camera = document.createElement("td");
+      if (check) camera.append(pill(check[0], check[1]));
+      else camera.textContent = "-";
+      tr.append(name, state, since, camera);
+      body.append(tr);
+    }
+  }
+
+  function renderCamera(camera) {
+    const state = el("camera-state");
+    state.replaceWith(Object.assign(
+      pill(camera.running ? "running" : `stopped (exit code ${camera.exit_code})`, camera.running ? "good" : "bad"),
+      { id: "camera-state" }));
+    const log = el("camera-log");
+    const atBottom = log.scrollTop + log.clientHeight >= log.scrollHeight - 8;
+    const text = camera.lines.join("\n");
+    if (log.textContent !== text) {
+      log.textContent = text;
+      if (atBottom) log.scrollTop = log.scrollHeight;
+    }
+  }
+
+  async function refresh() {
+    try {
+      const res = await fetch("/api/state");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      if (!people.length || people.some((p, i) => p.face_on_file !== data.people[i].face_on_file)) {
+        people = data.people;
+        renderTapButtons();
+        renderScenarios();
+      }
+      renderPeriod(data.status);
+      renderRoster(data.status.students);
+      renderCamera(data.camera);
+    } catch (error) {
+      el("period").textContent = `Can't reach the demo: ${error.message}. Is demo.py still running?`;
+    } finally {
+      setTimeout(refresh, POLL_MS);
+    }
+  }
+
+  el("new-period").addEventListener("click", async () => {
+    try {
+      await postJson("/api/period");
+      showToast("New demo period started: everyone is back to Not yet arrived.");
+    } catch (error) {
+      showToast(`Could not start a period: ${error.message}`, true);
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    const person = people[Number(event.key) - 1];
+    if (person && !event.metaKey && !event.ctrlKey && !event.altKey) tap(person);
+  });
+
+  renderLegend();
+  refresh();
+</script>
+</body>
+</html>

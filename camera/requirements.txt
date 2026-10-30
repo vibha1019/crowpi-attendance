@@ -1,0 +1,10 @@
+requests>=2.25
+
+# For --mode camera and the setup checks (--list-cameras, --check-faces,
+# --preview). --mode no-face and --mode rehearsal only need requests.
+# opencv-python 4.8+ has the YuNet/SFace face classes; 4.10+ also works with
+# numpy 2. Kept below 5 because the OpenCV Zoo face models were made and
+# tested with OpenCV 4. Use opencv-python, not opencv-python-headless: the
+# headless one cannot open the --preview window.
+opencv-python>=4.10,<5
+numpy>=1.21

@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 .env
 reader/reader.env
+camera/camera.env
+camera/faces/
+camera/models/
