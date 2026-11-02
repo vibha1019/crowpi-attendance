@@ -1,0 +1,212 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1170" width="1600" height="1170" font-family="Inter, Helvetica, Arial, sans-serif">
+  <title>Planned classroom installation</title>
+  <desc>Three-quarter view of the classroom entrance in a corner: UHF RFID reader panels on both sides of the door frame with a read zone across the doorway, and a camera on a short arm from the side wall aimed at the doorway.</desc>
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ddd6c6"/><stop offset="1" stop-color="#cfc6b3"/></linearGradient>
+    <linearGradient id="sideWall" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c6bda9"/><stop offset="1" stop-color="#d3cab7"/></linearGradient>
+    <linearGradient id="ceiling" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eceded"/><stop offset="1" stop-color="#d4d6d6"/></linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4b4a48"/><stop offset="1" stop-color="#333230"/></linearGradient>
+    <linearGradient id="door" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8f949a"/><stop offset="1" stop-color="#767b82"/></linearGradient>
+    <linearGradient id="frame" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c9c8c2"/><stop offset="1" stop-color="#b3b2ab"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b9bcb8"/><stop offset="0.5" stop-color="#a6a9a3"/><stop offset="1" stop-color="#8f928c"/></linearGradient>
+    <linearGradient id="banner" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d2a3a"/><stop offset="0.45" stop-color="#1c3640"/><stop offset="1" stop-color="#1f4d42"/></linearGradient>
+    <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e4e6ea"/><stop offset="0.5" stop-color="#b9bdc4"/><stop offset="1" stop-color="#8e939b"/></linearGradient>
+    <linearGradient id="table" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b98a5a"/><stop offset="1" stop-color="#9c6f44"/></linearGradient>
+    <linearGradient id="chair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f4466"/><stop offset="1" stop-color="#1c2b45"/></linearGradient>
+    <linearGradient id="curtain" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f3f1ea"/><stop offset="0.6" stop-color="#e6e2d6"/><stop offset="1" stop-color="#cfcabd"/></linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f3f4f6"/><stop offset="1" stop-color="#cfd3d9"/></linearGradient>
+    <linearGradient id="fov" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fc3ff" stop-opacity="0.42"/><stop offset="1" stop-color="#7fc3ff" stop-opacity="0.08"/></linearGradient>
+    <linearGradient id="readZone" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f5b54a" stop-opacity="0.38"/><stop offset="0.5" stop-color="#f5b54a" stop-opacity="0.14"/><stop offset="1" stop-color="#f5b54a" stop-opacity="0.38"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6"/><feOffset dx="4" dy="7"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.3"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softShadow" x="-30%" y="-50%" width="160%" height="220%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/><feOffset dx="2" dy="4"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.3"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+
+  <!-- Ceiling: drop tiles meeting both walls -->
+  <polygon points="0,0 1600,0 1600,140 1240,250 0,268" fill="url(#ceiling)"/>
+  <g stroke="#bfc2c2" stroke-width="2" fill="none">
+    <path d="M0 70 L1600 30 M0 140 L1600 70 M0 205 L1420 160"/>
+    <path d="M140 0 L110 266 M440 0 L420 262 M740 0 L730 258 M1040 0 L1040 254 M1300 0 L1330 222 M1500 0 L1560 152"/>
+  </g>
+  <rect x="560" y="80" width="170" height="32" fill="#c3c6c6"/>
+  <g stroke="#9ea2a2" stroke-width="2"><path d="M572 88 H718 M572 96 H718 M572 104 H718"/></g>
+  <g filter="url(#softShadow)">
+    <polygon points="20,232 420,224 420,256 20,264" fill="#f4f5f2"/>
+    <polygon points="760,196 1180,186 1180,214 760,224" fill="#f4f5f2"/>
+  </g>
+
+  <!-- Door wall (back) and side wall (right), meeting at the corner -->
+  <polygon points="0,268 1240,250 1240,920 0,906" fill="url(#wall)"/>
+  <polygon points="1240,250 1600,140 1600,1050 1240,920" fill="url(#sideWall)"/>
+  <path d="M1240 250 V920" stroke="#a99f8a" stroke-width="3"/>
+  <path d="M0 268 L1240 250 L1600 140" stroke="#b9b3a3" stroke-width="5" fill="none"/>
+
+  <!-- Posters and flyers on the door wall -->
+  <g filter="url(#softShadow)">
+    <rect x="40" y="560" width="72" height="150" fill="#2f5b67"/><rect x="48" y="575" width="56" height="36" fill="#4d8796"/>
+    <rect x="130" y="590" width="110" height="80" fill="#2b2f36"/><rect x="138" y="600" width="94" height="8" fill="#7f8a99"/><rect x="138" y="616" width="94" height="44" fill="#3d4450"/>
+    <rect x="260" y="585" width="76" height="130" fill="#2a2a33"/><rect x="268" y="600" width="60" height="70" fill="#5a5470"/>
+    <rect x="34" y="720" width="120" height="80" fill="#eef0f2"/><rect x="44" y="732" width="70" height="8" fill="#9db4c9"/>
+    <rect x="186" y="700" width="72" height="66" fill="#f4f4f1"/>
+    <rect x="610" y="430" width="120" height="140" fill="#eeefef"/><rect x="620" y="444" width="100" height="8" fill="#b8bdc4"/><rect x="620" y="460" width="100" height="8" fill="#b8bdc4"/><rect x="620" y="476" width="70" height="8" fill="#b8bdc4"/>
+    <rect x="622" y="580" width="96" height="80" fill="#f1f1ee"/>
+    <g><rect x="632" y="590" width="18" height="18" fill="#7aa7c7"/><rect x="656" y="590" width="18" height="18" fill="#9b7fc4"/><rect x="680" y="590" width="18" height="18" fill="#6fbf95"/><rect x="632" y="614" width="18" height="18" fill="#c97fa4"/><rect x="656" y="614" width="18" height="18" fill="#7aa7c7"/><rect x="680" y="614" width="18" height="18" fill="#e0b85a"/></g>
+    <rect x="622" y="670" width="96" height="86" fill="#262832"/><rect x="636" y="684" width="68" height="56" fill="#3c4152"/>
+    <rect x="622" y="766" width="96" height="86" fill="#e7edf6"/><rect x="638" y="782" width="64" height="54" fill="#2f5fa6"/>
+  </g>
+
+  <!-- Posters, trim rail and outlet on the side wall -->
+  <g filter="url(#softShadow)">
+    <polygon points="1268.0,537.6 1330.0,536.4 1330.0,660.5 1268.0,654.6" fill="#f4e69a"/>
+    <polygon points="1352.0,513.6 1470.0,509.1 1470.0,640.8 1352.0,632.8" fill="#f7f7f5"/>
+    <polygon points="1352.0,513.6 1470.0,509.1 1470.0,529.6 1352.0,532.3" fill="#1f2632"/>
+    <polygon points="1268.0,682.2 1330.0,689.7 1330.0,821.1 1268.0,806.2" fill="#f8f7f4"/>
+    <polygon points="1352.0,662.6 1460.0,672.8 1460.0,770.8 1352.0,751.9" fill="#cfe4f2"/>
+    <polygon points="1370.0,683.2 1440.0,691.0 1440.0,747.2 1370.0,736.2" fill="#a7c4d8"/>
+    <polygon points="1480.0,658.1 1580.0,666.2 1580.0,809.6 1480.0,790.9" fill="#f4f4f1"/>
+  </g>
+  <polygon points="1240.0,822.9 1600.0,918.0 1600.0,945.4 1240.0,843.0" fill="#c9a679"/>
+  <polygon points="1240.0,843.0 1600.0,945.4 1600.0,951.7 1240.0,847.6" fill="#9c7e58"/>
+
+  <!-- Curtain behind the tables, and floor lamp -->
+  <rect x="410" y="455" width="196" height="16" rx="5" fill="#2d3034"/>
+  <rect x="420" y="468" width="180" height="400" fill="url(#curtain)"/>
+  <g stroke="#cfc9ba" stroke-width="2"><path d="M446 470 V866 M474 470 V866 M502 470 V866 M530 470 V866 M558 470 V866 M586 470 V866"/></g>
+  <path d="M330 590 V880" stroke="#2a2a2a" stroke-width="5"/>
+  <path d="M316 588 L344 588 L338 600 L322 600 Z" fill="#2a2a2a"/>
+
+  <!-- Floor -->
+  <polygon points="0,906 1240,920 1600,1050 1600,1110 0,1110" fill="url(#floor)"/>
+  <path d="M0 906 L1240 920 L1600 1050" stroke="#2c2b29" stroke-width="6" fill="none"/>
+
+  <g transform="translate(-60 0)">
+  <!-- EXIT sign above the door, just left of center -->
+  <path d="M960 256 V292" stroke="#8f8f8f" stroke-width="3"/>
+  <rect x="890" y="290" width="140" height="64" rx="4" fill="#ecebe6" stroke="#c4c2ba" stroke-width="2" filter="url(#softShadow)"/>
+  <text x="960" y="337" text-anchor="middle" font-size="40" font-weight="700" fill="#ff3b30" filter="url(#glow)" font-family="Impact, 'Arial Narrow', sans-serif" letter-spacing="2">EXIT</text>
+
+  <!-- Door frame and door, tucked into the corner -->
+  <rect x="872" y="408" width="96" height="18" fill="#9da0a3"/>
+  <rect x="830" y="430" width="400" height="490" fill="url(#frame)"/>
+  <rect x="854" y="452" width="352" height="468" fill="#5d6166"/>
+  <rect x="860" y="458" width="340" height="462" fill="url(#door)"/>
+  <rect x="1030" y="470" width="150" height="26" rx="3" fill="url(#silver)"/>
+  <rect x="970" y="474" width="66" height="10" rx="3" fill="#b8bcc2"/>
+  <circle cx="958" cy="484" r="12" fill="#3a3d42"/><circle cx="958" cy="484" r="6" fill="#b8bcc2"/>
+  <rect x="908" y="528" width="96" height="236" fill="#6d7177"/>
+  <rect x="916" y="536" width="80" height="220" fill="url(#glass)"/>
+  <path d="M930 540 L982 750" stroke="#ffffff" stroke-opacity="0.18" stroke-width="10"/>
+  <rect x="1016" y="526" width="114" height="242" fill="url(#banner)"/>
+  <path d="M1046 554 q22 -14 50 -2 q-20 2 -26 12 q-12 -6 -24 -10 z" fill="#e8ece9" opacity="0.85"/>
+  <g font-size="34" font-weight="800" fill="#f2f4f2" text-anchor="middle" font-family="'Arial Black', Helvetica, sans-serif">
+    <text x="1073" y="620">D</text><text x="1073" y="660">N</text><text x="1073" y="700">H</text><text x="1073" y="740">S</text>
+  </g>
+  <rect x="888" y="784" width="300" height="20" rx="4" fill="url(#silver)"/>
+  <rect x="878" y="772" width="30" height="58" rx="6" fill="#9ea3aa"/>
+  <rect x="860" y="890" width="340" height="30" fill="#5e6268" opacity="0.6"/>
+
+  <!-- UHF read zone filling the doorway -->
+  <rect x="860" y="560" width="340" height="360" fill="url(#readZone)"/>
+  <g fill="none" stroke="#e39a24" stroke-opacity="0.55" stroke-width="2.5">
+    <path d="M870 640 q40 60 0 120"/><path d="M880 610 q70 90 0 180"/><path d="M890 580 q100 120 0 240"/>
+    <path d="M1190 640 q-40 60 0 120"/><path d="M1180 610 q-70 90 0 180"/><path d="M1170 580 q-100 120 0 240"/>
+  </g>
+
+  <!-- UHF RFID reader panels on both sides of the frame, chest height -->
+  <g filter="url(#shadow)">
+    <rect x="800" y="620" width="40" height="160" rx="6" fill="url(#panel)" stroke="#a9aeb6" stroke-width="1.5"/>
+    <rect x="808" y="634" width="24" height="132" rx="3" fill="none" stroke="#c3c8cf" stroke-width="1.5"/>
+    <circle cx="820" cy="628" r="3" fill="#5fd38a"/>
+    <rect x="1220" y="620" width="40" height="160" rx="6" fill="url(#panel)" stroke="#a9aeb6" stroke-width="1.5"/>
+    <rect x="1228" y="634" width="24" height="132" rx="3" fill="none" stroke="#c3c8cf" stroke-width="1.5"/>
+    <circle cx="1240" cy="628" r="3" fill="#5fd38a"/>
+  </g>
+  </g>
+
+  <!-- Camera field of view from the side wall across the entrance -->
+  <polygon points="1266,460 802,520 802,918 1140,918" fill="url(#fov)"/>
+  <path d="M1266 460 L802 520 M1266 460 L802 918" stroke="#5aa9f0" stroke-opacity="0.5" stroke-width="2" stroke-dasharray="6 6" fill="none"/>
+
+  <!-- Camera on a short arm from the side wall, aimed at the doorway -->
+  <g filter="url(#shadow)">
+    <polygon points="1330.0,408.6 1352.0,405.7 1352.0,465.2 1330.0,467.1" fill="#e9eaec" stroke="#b9bcc1"/>
+    <path d="M1330 438 L1300 444" stroke="#c9ccd1" stroke-width="10" stroke-linecap="round"/>
+    <g transform="translate(1296 446) rotate(-16)">
+      <rect x="-50" y="-17" width="66" height="34" rx="10" fill="#f2f3f5" stroke="#b9bcc1" stroke-width="1.5"/>
+      <rect x="-56" y="-21" width="26" height="42" rx="10" fill="#e1e3e6"/>
+      <circle cx="-56" cy="0" r="12" fill="#1c1e22"/><circle cx="-56" cy="0" r="6.5" fill="#2b3a55"/><circle cx="-59" cy="-3" r="2.3" fill="#a8c0e6"/>
+      <circle cx="6" cy="-9" r="2.5" fill="#5fd38a"/>
+    </g>
+  </g>
+
+  <!-- Tables along the left with laptops -->
+  <g filter="url(#shadow)">
+    <polygon points="0,846 700,838 726,872 0,884" fill="url(#table)"/>
+    <polygon points="0,884 726,872 726,884 0,896" fill="#7e5733"/>
+    <rect x="70" y="892" width="10" height="120" fill="#3a3a3a"/><rect x="680" y="882" width="10" height="120" fill="#3a3a3a"/><rect x="420" y="888" width="10" height="110" fill="#3a3a3a"/>
+  </g>
+  <g filter="url(#softShadow)">
+    <polygon points="208,726 368,722 372,842 212,846" fill="#1f2430"/>
+    <polygon points="216,734 362,730 366,834 220,838" fill="#25334f"/>
+    <rect x="228" y="744" width="60" height="6" fill="#5fd38a"/><rect x="228" y="758" width="120" height="5" fill="#6c7ea3"/><rect x="228" y="770" width="100" height="5" fill="#6c7ea3"/><rect x="228" y="782" width="110" height="5" fill="#6c7ea3"/><rect x="228" y="794" width="90" height="5" fill="#6c7ea3"/>
+    <polygon points="196,846 384,840 410,862 186,868" fill="#9aa0a8"/>
+    <polygon points="20,770 120,768 122,846 22,848" fill="#1f2430"/>
+    <polygon points="26,776 116,774 118,842 28,844" fill="#2c3a4a"/>
+    <polygon points="12,848 130,846 146,862 6,866" fill="#8f949b"/>
+  </g>
+  <rect x="160" y="800" width="20" height="48" rx="6" fill="#dbe9f3" opacity="0.85"/><rect x="164" y="792" width="12" height="10" rx="2" fill="#1f4f9e"/>
+  <rect x="452" y="804" width="18" height="40" rx="6" fill="#dbe9f3" opacity="0.85"/><rect x="455" y="797" width="12" height="9" rx="2" fill="#1f4f9e"/>
+
+  <!-- Connections from the readers and camera to the system laptop -->
+  <g fill="none" stroke="#1d2330" stroke-width="2.2" stroke-dasharray="8 7" opacity="0.65">
+    <path d="M740 700 C620 700 520 720 372 760"/>
+    <path d="M1340 408 L1352 236 L1240 268 L380 280 V722"/>
+  </g>
+
+  <!-- Trash and recycling bins by the side wall -->
+  <g filter="url(#shadow)">
+    <polygon points="1330,984 1440,990 1432,1100 1340,1096" fill="#1e1f22"/>
+    <polygon points="1324,976 1446,982 1446,994 1324,988" fill="#2a2b2f"/>
+    <polygon points="1460,996 1570,1004 1562,1104 1468,1102" fill="#2d5f9e"/>
+    <polygon points="1454,988 1576,996 1576,1008 1454,1000" fill="#3a6fb2"/>
+  </g>
+
+  <!-- Navy chairs in the foreground -->
+  <g filter="url(#shadow)">
+    <path d="M150 940 Q150 900 200 898 L410 898 Q460 900 460 940 L452 1060 Q448 1092 410 1094 L200 1094 Q160 1092 156 1060 Z" fill="url(#chair)"/>
+    <rect x="262" y="914" width="86" height="24" rx="12" fill="#14203a"/>
+    <path d="M168 1004 H442 M170 1030 H440 M174 1056 H436" stroke="#26385a" stroke-width="3"/>
+    <path d="M560 968 Q560 932 606 930 L792 930 Q836 932 836 968 L828 1058 Q824 1086 790 1088 L608 1088 Q572 1086 568 1058 Z" fill="url(#chair)"/>
+    <rect x="656" y="944" width="86" height="22" rx="11" fill="#14203a"/>
+  </g>
+
+  <!-- Callouts (same style as Fig. 1) -->
+  <g font-size="17" font-weight="600" fill="#1d2330">
+    <path d="M800 405 L760 618 M1140 405 L1180 618" stroke="#1d2330" stroke-width="1.6"/>
+    <circle cx="760" cy="618" r="4" fill="#1d2330"/><circle cx="1180" cy="618" r="4" fill="#1d2330"/>
+    <rect x="760" y="371" width="420" height="34" rx="17" fill="#ffffff" fill-opacity="0.94" stroke="#1d2330" stroke-width="1.2"/>
+    <text x="970" y="394" text-anchor="middle">UHF RFID readers (auto-detect tags on entry)</text>
+
+    <path d="M1336 416 L1440 260" stroke="#1d2330" stroke-width="1.6"/><circle cx="1336" cy="416" r="4" fill="#1d2330"/>
+    <rect x="1316" y="226" width="270" height="34" rx="17" fill="#ffffff" fill-opacity="0.94" stroke="#1d2330" stroke-width="1.2"/>
+    <text x="1451" y="249" text-anchor="middle">Camera (side-wall mount)</text>
+
+    <path d="M970 900 L970 958" stroke="#1d2330" stroke-width="1.6"/><circle cx="970" cy="900" r="4" fill="#1d2330"/>
+    <rect x="905" y="958" width="130" height="34" rx="17" fill="#ffffff" fill-opacity="0.94" stroke="#1d2330" stroke-width="1.2"/>
+    <text x="970" y="981" text-anchor="middle">Entrance</text>
+  </g>
+
+  <!-- Caption -->
+  <rect x="0" y="1110" width="1600" height="60" fill="#f4f1ea"/>
+  <text x="800" y="1147" text-anchor="middle" font-size="20" font-style="italic" fill="#3a3f4a">Fig. 2: Planned installation of UHF RFID readers and side-wall camera at the classroom entrance.</text>
+</svg>
